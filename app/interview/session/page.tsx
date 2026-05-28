@@ -5,7 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useChat } from "@ai-sdk/react"
 import { DefaultChatTransport } from "ai"
-import { Button } from "@/components/ui/button"
+import { AnimatedButton } from "@/components/animated-button"
+import { triggerHaptic } from "@/components/animated-button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
 import { 
@@ -17,6 +18,7 @@ import {
   Loader2,
   CheckCircle
 } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 
 function InterviewSessionContent() {
   const searchParams = useSearchParams()
@@ -71,11 +73,13 @@ function InterviewSessionContent() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || isLoading) return
+    triggerHaptic("light")
     sendMessage({ text: input })
     setInput("")
   }
 
   const handleEndInterview = () => {
+    triggerHaptic("medium")
     const params = new URLSearchParams({
       role,
       experience,
@@ -105,9 +109,13 @@ function InterviewSessionContent() {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent">
+                <motion.div 
+                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
                   <span className="text-sm font-bold text-accent-foreground">AI</span>
-                </div>
+                </motion.div>
               </Link>
               <div className="hidden sm:block">
                 <h1 className="font-semibold text-foreground">{roleLabels[role]} Interview</h1>
@@ -119,10 +127,10 @@ function InterviewSessionContent() {
                 <Clock className="h-4 w-4" />
                 <span className="text-sm font-mono">{formatTime(elapsedTime)}</span>
               </div>
-              <Button variant="outline" size="sm" onClick={handleEndInterview}>
+              <AnimatedButton variant="outline" size="sm" onClick={handleEndInterview} hapticIntensity="medium">
                 <CheckCircle className="h-4 w-4 mr-2" />
                 End Interview
-              </Button>
+              </AnimatedButton>
             </div>
           </div>
         </div>
@@ -132,45 +140,59 @@ function InterviewSessionContent() {
       <main className="flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto">
           <div className="mx-auto max-w-3xl px-4 py-6 space-y-6">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex gap-4 ${message.role === "user" ? "flex-row-reverse" : ""}`}
-              >
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                  message.role === "user" 
-                    ? "bg-accent text-accent-foreground" 
-                    : "bg-secondary text-foreground"
-                }`}>
-                  {message.role === "user" ? (
-                    <User className="h-5 w-5" />
-                  ) : (
-                    <Bot className="h-5 w-5" />
-                  )}
-                </div>
-                <Card className={`max-w-[80%] p-4 ${
-                  message.role === "user" 
-                    ? "bg-accent/10 border-accent/20" 
-                    : "bg-card"
-                }`}>
-                  <div className="prose prose-sm prose-invert max-w-none">
-                    {message.parts.map((part, index) => {
-                      if (part.type === "text") {
-                        return (
-                          <p key={index} className="text-foreground whitespace-pre-wrap m-0">
-                            {part.text}
-                          </p>
-                        )
-                      }
-                      return null
-                    })}
-                  </div>
-                </Card>
-              </div>
-            ))}
+            <AnimatePresence>
+              {messages.map((message, index) => (
+                <motion.div
+                  key={message.id}
+                  className={`flex gap-4 ${message.role === "user" ? "flex-row-reverse" : ""}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <motion.div 
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                      message.role === "user" 
+                        ? "bg-accent text-accent-foreground" 
+                        : "bg-secondary text-foreground"
+                    }`}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                  >
+                    {message.role === "user" ? (
+                      <User className="h-5 w-5" />
+                    ) : (
+                      <Bot className="h-5 w-5" />
+                    )}
+                  </motion.div>
+                  <Card className={`max-w-[80%] p-4 ${
+                    message.role === "user" 
+                      ? "bg-accent/10 border-accent/20" 
+                      : "bg-card"
+                  }`}>
+                    <div className="prose prose-sm prose-invert max-w-none">
+                      {message.parts.map((part, partIndex) => {
+                        if (part.type === "text") {
+                          return (
+                            <p key={partIndex} className="text-foreground whitespace-pre-wrap m-0">
+                              {part.text}
+                            </p>
+                          )
+                        }
+                        return null
+                      })}
+                    </div>
+                  </Card>
+                </motion.div>
+              ))}
+            </AnimatePresence>
             
             {isLoading && messages[messages.length - 1]?.role === "user" && (
-              <div className="flex gap-4">
+              <motion.div 
+                className="flex gap-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary text-foreground">
                   <Bot className="h-5 w-5" />
                 </div>
@@ -180,7 +202,7 @@ function InterviewSessionContent() {
                     <span className="text-sm">Thinking...</span>
                   </div>
                 </Card>
-              </div>
+              </motion.div>
             )}
             
             <div ref={messagesEndRef} />
@@ -205,18 +227,19 @@ function InterviewSessionContent() {
               }}
               disabled={isLoading}
             />
-            <Button 
+            <AnimatedButton 
               type="submit" 
               size="icon" 
               className="h-[60px] w-[60px]"
               disabled={isLoading || !input.trim()}
+              hapticIntensity="light"
             >
               {isLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
                 <Send className="h-5 w-5" />
               )}
-            </Button>
+            </AnimatedButton>
           </div>
           <p className="text-xs text-muted-foreground mt-2 text-center">
             Press Enter to send, Shift + Enter for new line

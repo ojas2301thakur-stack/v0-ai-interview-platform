@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { AnimatedButton } from "@/components/animated-button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -20,6 +20,9 @@ import {
   GraduationCap,
   Rocket
 } from "lucide-react"
+import { motion } from "framer-motion"
+import { triggerHaptic } from "@/components/animated-button"
+import { Suspense } from "react"
 
 const roles = [
   { id: "software-engineer", label: "Software Engineer", icon: Code },
@@ -45,8 +48,9 @@ const interviewTypes = [
   { id: "mixed", label: "Mixed", description: "A combination of behavioral and technical questions" },
 ]
 
-export default function InterviewSetup() {
+function InterviewSetupContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
     role: "",
@@ -56,19 +60,32 @@ export default function InterviewSetup() {
     jobDescription: "",
   })
 
+  // Pre-fill from URL params if coming from prep page
+  useEffect(() => {
+    const role = searchParams.get("role")
+    const experience = searchParams.get("experience")
+    if (role) setFormData(prev => ({ ...prev, role }))
+    if (experience) setFormData(prev => ({ ...prev, experience }))
+    if (role && experience) setStep(3)
+  }, [searchParams])
+
   const handleRoleSelect = (roleId: string) => {
+    triggerHaptic("light")
     setFormData({ ...formData, role: roleId })
   }
 
   const handleExperienceSelect = (expId: string) => {
+    triggerHaptic("light")
     setFormData({ ...formData, experience: expId })
   }
 
   const handleTypeSelect = (typeId: string) => {
+    triggerHaptic("light")
     setFormData({ ...formData, interviewType: typeId })
   }
 
   const handleStartInterview = () => {
+    triggerHaptic("medium")
     const params = new URLSearchParams({
       role: formData.role,
       experience: formData.experience,
@@ -88,6 +105,16 @@ export default function InterviewSetup() {
     }
   }
 
+  const handleNext = () => {
+    triggerHaptic("light")
+    setStep(step + 1)
+  }
+
+  const handleBack = () => {
+    triggerHaptic("light")
+    setStep(step - 1)
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -101,10 +128,10 @@ export default function InterviewSetup() {
               <span className="text-lg font-semibold text-foreground">InterviewAI</span>
             </Link>
             <Link href="/">
-              <Button variant="ghost" size="sm" className="gap-2">
+              <AnimatedButton variant="ghost" size="sm" className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 Back to Home
-              </Button>
+              </AnimatedButton>
             </Link>
           </div>
         </div>
@@ -118,9 +145,11 @@ export default function InterviewSetup() {
             <span className="text-sm text-muted-foreground">{Math.round((step / 4) * 100)}% complete</span>
           </div>
           <div className="h-2 bg-secondary rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-accent transition-all duration-300 ease-out"
-              style={{ width: `${(step / 4) * 100}%` }}
+            <motion.div 
+              className="h-full bg-accent"
+              initial={{ width: 0 }}
+              animate={{ width: `${(step / 4) * 100}%` }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
             />
           </div>
         </div>
@@ -130,21 +159,28 @@ export default function InterviewSetup() {
       <main className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12">
         {/* Step 1: Role Selection */}
         {step === 1 && (
-          <div className="space-y-8">
+          <motion.div 
+            className="space-y-8"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+          >
             <div className="text-center">
               <h1 className="text-3xl font-bold text-foreground mb-3">What role are you interviewing for?</h1>
               <p className="text-muted-foreground">Select the role that best matches your target position</p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {roles.map((role) => (
-                <button
+                <motion.button
                   key={role.id}
                   onClick={() => handleRoleSelect(role.id)}
-                  className={`p-6 rounded-xl border text-center transition-all ${
+                  className={`p-6 rounded-xl border text-center transition-colors ${
                     formData.role === role.id
                       ? "border-accent bg-accent/10"
                       : "border-border bg-card hover:border-muted-foreground"
                   }`}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   <div className={`mx-auto flex h-12 w-12 items-center justify-center rounded-lg mb-3 ${
                     formData.role === role.id ? "bg-accent text-accent-foreground" : "bg-secondary text-foreground"
@@ -152,67 +188,86 @@ export default function InterviewSetup() {
                     <role.icon className="h-6 w-6" />
                   </div>
                   <span className="font-medium text-foreground">{role.label}</span>
-                </button>
+                </motion.button>
               ))}
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Step 2: Experience Level */}
         {step === 2 && (
-          <div className="space-y-8">
+          <motion.div 
+            className="space-y-8"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+          >
             <div className="text-center">
               <h1 className="text-3xl font-bold text-foreground mb-3">What&apos;s your experience level?</h1>
               <p className="text-muted-foreground">This helps us tailor the questions to your background</p>
             </div>
             <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto">
               {experienceLevels.map((level) => (
-                <button
+                <motion.button
                   key={level.id}
                   onClick={() => handleExperienceSelect(level.id)}
-                  className={`p-6 rounded-xl border text-left transition-all ${
+                  className={`p-6 rounded-xl border text-left transition-colors ${
                     formData.experience === level.id
                       ? "border-accent bg-accent/10"
                       : "border-border bg-card hover:border-muted-foreground"
                   }`}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   <span className="font-semibold text-lg text-foreground">{level.label}</span>
                   <p className="text-sm text-muted-foreground mt-1">{level.description}</p>
-                </button>
+                </motion.button>
               ))}
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Step 3: Interview Type */}
         {step === 3 && (
-          <div className="space-y-8">
+          <motion.div 
+            className="space-y-8"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+          >
             <div className="text-center">
               <h1 className="text-3xl font-bold text-foreground mb-3">What type of interview do you want to practice?</h1>
               <p className="text-muted-foreground">Choose the focus area for your practice session</p>
             </div>
             <div className="space-y-4 max-w-2xl mx-auto">
               {interviewTypes.map((type) => (
-                <button
+                <motion.button
                   key={type.id}
                   onClick={() => handleTypeSelect(type.id)}
-                  className={`w-full p-6 rounded-xl border text-left transition-all ${
+                  className={`w-full p-6 rounded-xl border text-left transition-colors ${
                     formData.interviewType === type.id
                       ? "border-accent bg-accent/10"
                       : "border-border bg-card hover:border-muted-foreground"
                   }`}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
                 >
                   <span className="font-semibold text-lg text-foreground">{type.label}</span>
                   <p className="text-sm text-muted-foreground mt-1">{type.description}</p>
-                </button>
+                </motion.button>
               ))}
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Step 4: Additional Details */}
         {step === 4 && (
-          <div className="space-y-8">
+          <motion.div 
+            className="space-y-8"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+          >
             <div className="text-center">
               <h1 className="text-3xl font-bold text-foreground mb-3">Almost ready!</h1>
               <p className="text-muted-foreground">Add any additional context to personalize your interview</p>
@@ -244,40 +299,54 @@ export default function InterviewSetup() {
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
         )}
 
         {/* Navigation */}
         <div className="flex items-center justify-between mt-12 max-w-2xl mx-auto">
-          <Button
+          <AnimatedButton
             variant="outline"
-            onClick={() => setStep(step - 1)}
+            onClick={handleBack}
             disabled={step === 1}
             className="gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
-          </Button>
+          </AnimatedButton>
           {step < 4 ? (
-            <Button
-              onClick={() => setStep(step + 1)}
+            <AnimatedButton
+              onClick={handleNext}
               disabled={!canProceed()}
               className="gap-2"
+              hapticIntensity="light"
             >
               Continue
               <ArrowRight className="h-4 w-4" />
-            </Button>
+            </AnimatedButton>
           ) : (
-            <Button
+            <AnimatedButton
               onClick={handleStartInterview}
               className="gap-2"
+              hapticIntensity="medium"
             >
               Start Interview
               <ArrowRight className="h-4 w-4" />
-            </Button>
+            </AnimatedButton>
           )}
         </div>
       </main>
     </div>
+  )
+}
+
+export default function InterviewSetup() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-2 border-accent border-t-transparent rounded-full" />
+      </div>
+    }>
+      <InterviewSetupContent />
+    </Suspense>
   )
 }

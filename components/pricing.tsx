@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
+import { AnimatedButton } from "@/components/animated-button"
 import { Check } from "lucide-react"
 import Link from "next/link"
 
@@ -9,11 +9,11 @@ const plans = [
   {
     name: "Free",
     price: "$0",
-    description: "Perfect for trying out the platform",
+    description: "Get started with interview practice",
     features: [
       "3 practice interviews per month",
-      "Basic feedback",
-      "5 question types",
+      "Basic AI feedback",
+      "5 question categories",
       "Email support"
     ],
     cta: "Get Started",
@@ -23,14 +23,14 @@ const plans = [
     name: "Pro",
     price: "$19",
     period: "/month",
-    description: "Best for active job seekers",
+    description: "For serious job seekers",
     features: [
       "Unlimited practice interviews",
-      "Detailed AI feedback",
-      "All question types",
+      "Advanced AI analysis",
+      "All question categories",
       "Performance analytics",
       "Priority support",
-      "Custom interview scenarios"
+      "Custom scenarios"
     ],
     cta: "Start Free Trial",
     popular: true
@@ -44,7 +44,7 @@ const plans = [
       "Team management",
       "Custom branding",
       "API access",
-      "Dedicated account manager",
+      "Dedicated support",
       "SLA guarantee"
     ],
     cta: "Contact Sales",
@@ -109,12 +109,13 @@ export function Pricing() {
                 ))}
               </ul>
               <Link href="/interview/setup">
-                <Button 
+                <AnimatedButton 
                   className="w-full" 
                   variant={plan.popular ? "default" : "outline"}
+                  hapticIntensity={plan.popular ? "medium" : "light"}
                 >
                   {plan.cta}
-                </Button>
+                </AnimatedButton>
               </Link>
             </motion.div>
           ))}

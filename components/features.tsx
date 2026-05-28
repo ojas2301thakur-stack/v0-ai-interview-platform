@@ -18,8 +18,8 @@ const features = [
   },
   {
     icon: BarChart3,
-    title: "Detailed Analytics",
-    description: "Get comprehensive feedback on your answers, body language cues, and areas for improvement."
+    title: "Visual Analytics",
+    description: "Interactive charts and graphs showing your performance across multiple skill dimensions."
   },
   {
     icon: Brain,
@@ -71,10 +71,14 @@ export function Features() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
+              whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10 text-accent mb-4">
+              <motion.div 
+                className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10 text-accent mb-4"
+                whileHover={{ rotate: 5 }}
+              >
                 <feature.icon className="h-6 w-6" />
-              </div>
+              </motion.div>
               <h3 className="text-lg font-semibold text-foreground mb-2">
                 {feature.title}
               </h3>

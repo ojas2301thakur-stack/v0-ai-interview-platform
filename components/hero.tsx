@@ -1,8 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, Sparkles } from "lucide-react"
+import { AnimatedButton } from "@/components/animated-button"
+import { ArrowRight, Sparkles, Play } from "lucide-react"
 import { motion } from "framer-motion"
 
 export function Hero() {
@@ -52,34 +52,34 @@ export function Hero() {
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <Link href="/interview/setup">
-            <Button size="lg" className="gap-2">
+            <AnimatedButton size="lg" className="gap-2" hapticIntensity="medium">
               Start Practicing
               <ArrowRight className="h-4 w-4" />
-            </Button>
+            </AnimatedButton>
           </Link>
-          <Link href="#how-it-works">
-            <Button size="lg" variant="outline">
-              Watch Demo
-            </Button>
+          <Link href="/prep">
+            <AnimatedButton size="lg" variant="outline" className="gap-2">
+              <Play className="h-4 w-4" />
+              Prep Questions
+            </AnimatedButton>
           </Link>
         </motion.div>
 
-        {/* Stats */}
+        {/* Feature highlights instead of dummy stats */}
         <motion.div 
-          className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8"
+          className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
           {[
-            { value: "50K+", label: "Interviews Completed" },
-            { value: "95%", label: "Success Rate" },
-            { value: "200+", label: "Question Types" },
-            { value: "4.9/5", label: "User Rating" },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className="text-3xl sm:text-4xl font-bold text-foreground">{stat.value}</div>
-              <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
+            { title: "Adaptive AI", description: "Questions tailored to your experience level" },
+            { title: "Instant Feedback", description: "Real-time analysis of your responses" },
+            { title: "Track Progress", description: "Visual reports to measure improvement" },
+          ].map((feature) => (
+            <div key={feature.title} className="p-4 rounded-xl border border-border bg-card/50 backdrop-blur-sm">
+              <div className="text-lg font-semibold text-foreground">{feature.title}</div>
+              <div className="text-sm text-muted-foreground mt-1">{feature.description}</div>
             </div>
           ))}
         </motion.div>

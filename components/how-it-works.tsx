@@ -16,8 +16,8 @@ const steps = [
   },
   {
     icon: BarChart,
-    title: "Get Instant Feedback",
-    description: "Receive detailed analysis of your answers including strengths, areas to improve, and suggested responses."
+    title: "Get Visual Feedback",
+    description: "Receive detailed analysis with interactive charts showing your strengths and areas for improvement."
   },
   {
     icon: CheckCircle,
@@ -55,14 +55,24 @@ export function HowItWorks() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <div className="relative inline-flex">
+              <motion.div 
+                className="relative inline-flex"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent text-accent-foreground mb-4">
                   <step.icon className="h-7 w-7" />
                 </div>
-                <span className="absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background text-sm font-bold">
+                <motion.span 
+                  className="absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background text-sm font-bold"
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ type: "spring", stiffness: 400, damping: 15, delay: index * 0.1 + 0.3 }}
+                >
                   {index + 1}
-                </span>
-              </div>
+                </motion.span>
+              </motion.div>
               <h3 className="text-lg font-semibold text-foreground mb-2">
                 {step.title}
               </h3>
